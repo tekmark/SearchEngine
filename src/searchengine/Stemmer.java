@@ -1,7 +1,6 @@
 package searchengine;
 
 /*
-
    Porter stemmer in Java. The original paper is in
 
        Porter, 1980, An algorithm for suffix stripping, Program, Vol. 14,
@@ -44,7 +43,7 @@ import java.io.*;
   * by calling one of the various stem(something) methods.
   */
 
-class Stemmer
+public class Stemmer
 {  private char[] b;
    private int i,     /* offset into b */
                i_end, /* offset to end of stemmed word */
