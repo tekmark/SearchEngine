@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import org.apache.lucene.analysis.Tokenizer;
 
 public class Main {
-	public static String path="/home/chao/Desktop/test.html";
+	public static String path="test/test";
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 //		System.out.println("Hello World");
@@ -19,7 +19,7 @@ public class Main {
 //			System.out.print(s);
 			//Tokenizer.tokenize(ss);
 			//String text = "Apache be the simplest yet, a of Powerful java based search library good cheap connective.";
-			MyAnalyzer.test(ss);
+			MyAnalyzer.run(ss);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.print("ERROR");
