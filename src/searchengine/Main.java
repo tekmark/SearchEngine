@@ -3,87 +3,143 @@ package searchengine;
 import java.io.File;
 import java.io.IOException;
 
-import java.nio.charset.Charset;
-import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.QueryBuilder;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-
 import org.apache.logging.log4j.Logger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 
 
 public class Main {
-	private final static Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+	private final static String VERSION = "0.0.1";
 	
+	private final static Logger Logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+	private void usage() {
+		System.out.println("Usage:");
+		System.out.println("searchengine [index | search]");
+		
+	}
 	public static String path="test/test";	
 	
-	public static void main(String[] args) throws IOException, ParseException {
+	public static void main(String[] args) throws IOException {
 		
-		logger.debug("test");
+		// create the command line parser
+		CommandLineParser parser = new DefaultParser();
 		
-		// TODO Auto-generated method stub
-//		System.out.println("Hello World");
-		//Tokenizer.tokenize();
+		// create the Options
+		Options options = new Options();
+		options.addOption("v", "version", false, "print version information and exit.");
+		options.addOption("h", "help", false, "print this massage.");
+		options.addOption("V", "verbose", false, "verbose mode, print more message");
+		options.addOption("s", "search", true, "search string");
+		options.addOption("d", "directory", true, "directory");
+		options.addOption("i", "index", true, "index dump file");
+		options.addOption("t", "test", true, "test dump file");
+		
+		try {
+			// parse the command line arguments
+			CommandLine line = parser.parse(options, args);
+			
+			if (line.hasOption("help")) {
+				// automatically generate the help statement
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp( "searchengine", options );
+			} else if (line.hasOption("version")) {
+				System.out.println("Version - " + VERSION);
+			} else if (line.hasOption("search")) {
+				String str = line.getOptionValue("search", "no value");
+				if (line.hasOption("directory")) {
+					String path = line.getOptionValue("directory");
+					doSearch(str, path);
+				} else {
+					System.out.println("missing --directory");
+				}
+			} else if (line.hasOption("index")) {
+				String dumpfilePathStr = line.getOptionValue("index");
+				if (line.hasOption("directory")) {
+					String targetPathStr = line.getOptionValue("directory");
+					doIndex(dumpfilePathStr, targetPathStr);
+				}
+			} else if (line.hasOption("test")) {
+				//String dumpFilePathStr = line.getOptionValue("test");
+				String dumpFilePathStr = "/Users/chaohan/dumptest";
+				doTest(dumpFilePathStr);
+			} else {
+				System.out.println("NO OPTION MACTHED");
+			}
+			
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			System.out.println( "Unexpected exception:" + e.getMessage() );
+		}
 		
 		/*
-		try {
-			String s = HtmlProcessor.readAlltoString(path, Charset.defaultCharset());
-			//System.out.println(s);
-			String ss = HtmlProcessor.extractText(s);
-//			System.out.print(s);
-			//Tokenizer.tokenize(ss);
-			//String text = "Apache be the simplest yet, a of Powerful java based search library good cheap connective.";
-			MyAnalyzer.run(ss);
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.print("ERROR");
-			e.printStackTrace();
-		}
-		*/
 		MyAnalyzer analyzer = new MyAnalyzer();
-//		StandardAnalyzer analyzer = new StandardAnalyzer();
+		
 		try {
-			TextFileIndexer indexer = new TextFileIndexer("abc", analyzer);
-			indexer.index(path);
+			DumpFileIndexer indexer = new DumpFileIndexer("abc", analyzer);
+			indexer.index();
 			indexer.closeIndex();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		MySearcher searcher = new MySearcher("abc");
 		
-		//searcher
-	    IndexReader reader = DirectoryReader.open(FSDirectory.open(new File("abc").toPath()));
-	    IndexSearcher searcher = new IndexSearcher(reader);
-	    TopScoreDocCollector collector = TopScoreDocCollector.create(5);
-	    
-	    Query q = new QueryParser("contents", analyzer).parse("+mit +twitter");
-	    
-//	    QueryBuilder builder = new QueryBuilder(analyzer);
-//	    Query a = builder.createBooleanQuery("body", "just a test");
-//	    Query b = builder.createPhraseQuery("body", "another test");
-//	    Query c = builder.createMinShouldMatchQuery("body", "another test", 0.5f);
-//		Query q = builder.createPhraseQuery("contents", "spotlight control");
+		searcher.search("rutgers univerity"); 
+		*/
+	}
+	
+	private static void doSearch(String words, String pathStr) throws IOException {
+		Logger.info("Search : " + words + ", Path: " + pathStr);
+		//validate directory
+		File file = new File(pathStr);
+		if (file.exists() && file.isDirectory()) {
+			Logger.debug("Diectory exists");
+			MySearcher searcher = new MySearcher(pathStr);
+			searcher.search(words);
+		} else {
+			Logger.error("Check " + pathStr + ".");
+		}
+	}
+	
+	private static void doIndex(String dumpFilePathStr, String targetPathStr) {
+		Logger.info("Index. Dump File path: " + dumpFilePathStr 
+				+ ". Target path: " + targetPathStr);
+		File file = new File(targetPathStr);
+		if (file.isDirectory() && file.exists()) {
+			Logger.warn("Target Directory exists.");
+		}
+		File dumpFile = new File(dumpFilePathStr);
+		if (!dumpFile.exists()) {
+			Logger.error("Dump file path: " + dumpFilePathStr + "doesn't exist.");
+			return;
+		} else if (!dumpFile.isDirectory()) {
+			Logger.info("Find dump file: " + dumpFilePathStr + ". Dump file size: " + dumpFile.length());
+		} else {
+			Logger.warn("Check dump file.");
+			return;
+		}
+		MyAnalyzer analyzer = new MyAnalyzer();
+		try {
+			DumpFileIndexer indexer = new DumpFileIndexer(targetPathStr, analyzer);
+			indexer.index(dumpFilePathStr);
+			indexer.closeIndex();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static void doTest(String dumpFilePathStr) throws IOException {
+		Logger.info("Test file: " + dumpFilePathStr); 
+		//process(dumpFilePathStr);
+		DumpFileIndexer indexer = new DumpFileIndexer("abced");
+		indexer.index(dumpFilePathStr);
 		
-		searcher.search(q, collector);
-		ScoreDoc[] hits = collector.topDocs().scoreDocs;
-		System.out.println("Found " + hits.length + " hits.");
-		
-		for(int i=0;i<hits.length;++i) {
-	          int docId = hits[i].doc;
-	          Document d = searcher.doc(docId);
-	          System.out.println((i + 1) + ". " + d.get("path") + " score=" + hits[i].score);
-	        }
-	}	
+	}
 }

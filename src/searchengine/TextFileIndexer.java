@@ -19,7 +19,6 @@ public class TextFileIndexer {
 	
 	private IndexWriter mWriter;
 	
-	
 	//constructor. 
 	public TextFileIndexer (String dir, Analyzer analyzer) throws IOException {
 		Path path = new File(dir).toPath();
@@ -55,7 +54,6 @@ public class TextFileIndexer {
 		} finally {
 	        reader.close();
 		}
-		
 		
 		System.out.println("Done");
 	}

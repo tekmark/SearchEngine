@@ -27,6 +27,10 @@ import org.apache.lucene.analysis.util.CharArraySet;
 
 public class MyAnalyzer extends Analyzer {
 	
+	public static MyAnalyzer getDefaultAnalyzer () { 
+		return new MyAnalyzer(); 
+	}
+	
 	public MyAnalyzer () {
 		super();
 		keywordSet = new HashSet<String>();
@@ -52,6 +56,7 @@ public class MyAnalyzer extends Analyzer {
 	    } finally {
 	      stream.close();
 	    }
+	    analyzer.close();
 	}
 
 	@Override
@@ -65,8 +70,9 @@ public class MyAnalyzer extends Analyzer {
 		filter = new StopFilter(filter, EnglishAnalyzer.getDefaultStopSet());
 		filter = new PorterStemFilter(filter); 
 		
-		TokenStreamComponents components = new TokenStreamComponents(source, filter);
-		return components;
+		//TokenStreamComponents components = new TokenStreamComponents(source, filter);
+		//return components;
+		return new TokenStreamComponents(source, filter);
 	}
 	
 	private Set<String> keywordSet;
