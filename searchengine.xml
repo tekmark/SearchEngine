@@ -207,4 +207,15 @@
   <target name="build.modules" depends="init, clean, compile.module.searchengine" description="build all modules"/>
   
   <target name="all" depends="build.modules" description="build all"/>
+  
+  <target name="build-jar">
+    <jar jarfile="${basedir}/searchengine.jar"
+        basedir="${basedir}/bin"
+        includes="**">
+      <zipgroupfileset dir="${basedir}/lib" includes="*.jar"/>
+      <manifest>
+        <attribute name="Main-Class" value="searchengine.Main"/>
+      </manifest>
+    </jar>
+  </target>
 </project>
