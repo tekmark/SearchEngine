@@ -111,18 +111,6 @@
   
   
   <!-- Application Server Libraries -->
-  <!-- Register Custom Compiler Taskdefs -->
-  <property name="javac2.home" value="${idea.home}/lib"/>
-  <path id="javac2.classpath">
-    <pathelement location="${javac2.home}/javac2.jar"/>
-    <pathelement location="${javac2.home}/jdom.jar"/>
-    <pathelement location="${javac2.home}/asm-all.jar"/>
-    <pathelement location="${javac2.home}/jgoodies-forms.jar"/>
-  </path>
-  <target name="register.custom.compilers">
-    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
-    <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions" classpathref="javac2.classpath"/>
-  </target>
   
   <!-- Modules -->
   
@@ -185,15 +173,15 @@
   
   <target name="compile.module.searchengine" depends="compile.module.searchengine.production,compile.module.searchengine.tests" description="Compile module SearchEngine"/>
   
-  <target name="compile.module.searchengine.production" depends="register.custom.compilers" description="Compile module SearchEngine; production classes">
+  <target name="compile.module.searchengine.production" description="Compile module SearchEngine; production classes">
     <mkdir dir="${searchengine.output.dir}"/>
-    <javac2 destdir="${searchengine.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.searchengine}/javac">
+    <javac destdir="${searchengine.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.searchengine}/javac">
       <compilerarg line="${compiler.args.searchengine}"/>
       <bootclasspath refid="searchengine.module.bootclasspath"/>
       <classpath refid="searchengine.module.production.classpath"/>
       <src refid="searchengine.module.sourcepath"/>
       <patternset refid="excluded.from.compilation.searchengine"/>
-    </javac2>
+    </javac>
     
     <copy todir="${searchengine.output.dir}">
       <fileset dir="${module.searchengine.basedir}/src">
@@ -203,7 +191,7 @@
     </copy>
   </target>
   
-  <target name="compile.module.searchengine.tests" depends="register.custom.compilers,compile.module.searchengine.production" description="compile module SearchEngine; test classes" unless="skip.tests"/>
+  <target name="compile.module.searchengine.tests" depends="compile.module.searchengine.production" description="compile module SearchEngine; test classes" unless="skip.tests"/>
   
   <target name="clean.module.searchengine" description="cleanup module">
     <delete dir="${searchengine.output.dir}"/>
