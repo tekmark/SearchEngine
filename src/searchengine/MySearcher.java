@@ -10,10 +10,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -84,14 +82,33 @@ public class MySearcher {
 	          Document d = mSearcher.doc(docId);
 	          String url = d.get(NutchDocField.URL);
 	          String title = d.get(NutchDocField.Title);
-	          Logger.debug((i + 1) + ". " + url + " title: " + title + ", score=" + hits[i].score);
+			  //String urlScoreStr = d.get(NutchDocField.UrlScore);
+	          //double urlScore = Double.parseDouble(urlScoreStr);
+			  Logger.debug((i + 1) + ". " + url + " title: " + title + " | " + hits[i].score);
 	          SearchResultRecord record = SearchResultRecord.newRecord(title, url);
 	          records.add(record);
 	    }
 		
 		return records;
 	}
-	
+
+	public void searchByUrlTest() throws IOException {
+		String url = "http://www.rutgers.edu/academics/catalog-archive-edward-j-bloustein-school-planning-and-public-policy";
+		Term term = new Term(NutchDocField.URL, url);
+		Query query = new TermQuery(term);
+		TopDocsCollector collector = TopScoreDocCollector.create(1);
+		mSearcher.search(query, collector);
+		int hits = collector.getTotalHits();
+		Logger.info("# of hits : " + hits);
+		if (hits > 0) {
+			Logger.info("Found Url: " + url);
+			ScoreDoc[] docs = collector.topDocs().scoreDocs;
+			Logger.debug(docs[0].toString());
+		} else {
+			Logger.info("Term is not found");
+		}
+	}
+
 	public List<SearchResultRecord> testJavaBridge() {
 		List<SearchResultRecord> records = new ArrayList<SearchResultRecord>();
 		SearchResultRecord record = SearchResultRecord.newRecord("Rutgers Univerity", "http://www.rutgers.edu");

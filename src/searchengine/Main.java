@@ -17,11 +17,7 @@ public class Main {
 	private final static String VERSION = "0.0.1";
 	
 	private final static Logger Logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
-	private void usage() {
-		System.out.println("Usage:");
-		System.out.println("searchengine [index | search]");
-		
-	}
+
 	public static String path="test/test";	
 	
 	public static void main(String[] args) throws IOException {
@@ -38,15 +34,16 @@ public class Main {
 		options.addOption("d", "directory", true, "directory");
 		options.addOption("i", "index", true, "index dump file");
 		options.addOption("t", "test", true, "test dump file");
+		options.addOption("S", "score", true, "dump scores");
 		
 		try {
 			// parse the command line arguments
 			CommandLine line = parser.parse(options, args);
-			
+
 			if (line.hasOption("help")) {
 				// automatically generate the help statement
 				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp( "searchengine", options );
+				formatter.printHelp("searchengine", options);
 			} else if (line.hasOption("version")) {
 				System.out.println("Version - " + VERSION);
 			} else if (line.hasOption("search")) {
@@ -65,8 +62,11 @@ public class Main {
 				}
 			} else if (line.hasOption("test")) {
 				//String dumpFilePathStr = line.getOptionValue("test");
-				String dumpFilePathStr = "/Users/chaohan/dumptest";
+				String dumpFilePathStr = "/Users/chaohan/git/SearchEngine/aaa";
 				doTest(dumpFilePathStr);
+			} else if (line.hasOption("score")) {
+				ScoreFileReader reader = new ScoreFileReader();
+				reader.read();
 			} else {
 				System.out.println("NO OPTION MACTHED");
 			}
@@ -127,7 +127,7 @@ public class Main {
 		MyAnalyzer analyzer = new MyAnalyzer();
 		try {
 			DumpFileIndexer indexer = new DumpFileIndexer(targetPathStr, analyzer);
-			indexer.index(dumpFilePathStr);
+			indexer.indexWithScores(dumpFilePathStr);
 			indexer.closeIndex();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -135,11 +135,21 @@ public class Main {
 		}
 	}
 	
-	private static void doTest(String dumpFilePathStr) throws IOException {
-		Logger.info("Test file: " + dumpFilePathStr); 
+	private static void doTest(String pathStr) throws IOException {
+		Logger.info("Test file: " + pathStr);
 		//process(dumpFilePathStr);
-		DumpFileIndexer indexer = new DumpFileIndexer("abced");
-		indexer.index(dumpFilePathStr);
-		
+//		DumpFileIndexer indexer = new DumpFileIndexer("abced");
+//		indexer.index(dumpFilePathStr);
+		//validate directory
+//		File file = new File(pathStr);
+//		if (file.exists() && file.isDirectory()) {
+//			Logger.debug("Diectory exists");
+//			MySearcher searcher = new MySearcher(pathStr);
+//			searcher.searchByUrlTest();
+//		} else {
+//			Logger.error("Check " + pathStr + ".");
+//		}
 	}
+
+
 }

@@ -1,6 +1,6 @@
 package searchengine;
 
-public class SearchResultRecord {
+public class SearchResultRecord implements Comparable{
 	private String mUrl;
 	private String mTitle;
 	
@@ -22,5 +22,10 @@ public class SearchResultRecord {
 	public String getTitle() {
 		return mTitle;
 	}
-	
+
+	@Override
+	public int compareTo(Object o) {
+
+		return 0;
+	}
 }
