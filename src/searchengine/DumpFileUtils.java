@@ -52,7 +52,9 @@ public class DumpFileUtils {
 		}
 		return null;
 	}
-	
+
+
+
 	//get the label from a string line
 	//return root label
 	public static String getRootLabel (String line) {

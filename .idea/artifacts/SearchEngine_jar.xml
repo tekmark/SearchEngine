@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="SearchEngine:jar">
+    <output-path>$PROJECT_DIR$/bin/artifacts/SearchEngine_jar</output-path>
+    <root id="archive" name="SearchEngine.jar">
+      <element id="module-output" name="SearchEngine" />
+      <element id="library" level="project" name="lib" />
+    </root>
+  </artifact>
+</component>

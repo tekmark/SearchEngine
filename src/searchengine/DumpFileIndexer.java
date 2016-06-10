@@ -16,6 +16,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
@@ -63,6 +65,7 @@ public class DumpFileIndexer {
 			//
 			mReader = new ScoreFileReader();
 			mReader.read();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -90,8 +93,9 @@ public class DumpFileIndexer {
 //		DumpFileIndexer indexer = new DumpFileIndexer(targetDir);	
 //	}
 
-	public void indexWithScores(String dumpFilePathStr) {
+	public void indexWithScores(String dumpFilePathStr, MongoDBJConnector connector) {
 		Logger.info("indexing... with scores");
+
 		try {
 			FileInputStream fstream = new FileInputStream(dumpFilePathStr);
 			DataInputStream in = new DataInputStream(fstream);
@@ -134,19 +138,22 @@ public class DumpFileIndexer {
 							if (doc != null) {
 								//Logger.debug(doc.toString());
 								String url = record.getUrl();
-								double score = mReader.getScore(url);
-								if (score > 0) {
-									Logger.debug("Url: " + url + " | Score: " + score);
-								}
+                                Logger.debug("Url: " + url);
+//
+// double score = mReader.getScore(url);
+//								if (score > 0) {
+//									Logger.debug("Url: " + url + " | Score: " + score);
+//								}
+                                if (connector != null) {
+                                    updateNutchDocWithExtra(doc, url, connector);
+                                }
+//                                Logger.debug(doc.toString());
 								mWriter.addDocument(doc);
 							} else {
 								Logger.debug("Document is null.");
 							}
 						} else {
 							Logger.warn("Invalid record. # of line: " + lineNum + ". Error Code: " + record.isValid());
-							//currLine = br.readLine();
-							//lineNum++;
-							//continue;
 						}
 					}
 
@@ -198,6 +205,30 @@ public class DumpFileIndexer {
 			e.printStackTrace();
 		}
 	}
+
+    private void updateNutchDocWithExtra (Document nutchDoc, String url, MongoDBJConnector connector) {
+        //query MongoDB for extra info.
+        org.bson.Document dbResult = connector.getUrlDocByUrl(url);
+
+        if (dbResult == null) {
+            Logger.debug("No match in MongoDB.");
+        } else {
+            Logger.debug(dbResult.toString());
+            String urlScore = dbResult.getString("score");
+            if (urlScore != null) {
+                nutchDoc.add(new StringField(NutchDocField.Score, urlScore, Field.Store.YES));
+            }
+            String inlink = dbResult.getString("inlinks");
+            if (inlink != null) {
+                nutchDoc.add(new StringField(NutchDocField.Inlink, inlink, Field.Store.YES));
+            }
+            String outlink = dbResult.getString("outlinks");
+            if (outlink != null) {
+                nutchDoc.add(new StringField(NutchDocField.Outlink, outlink, Field.Store.YES));
+            }
+        }
+    }
+
 
 	public void index(String dumpFilePath) {
 		Logger.info("indexing...");

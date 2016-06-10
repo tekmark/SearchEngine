@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<configuration>
+    <default-config-filename>config.xml</default-config-filename>
+    <mongodb>
+        <host>localhost</host>
+        <port>27017</port>
+    </mongodb>
+    <dump>
+        <path>dump</path>
+    </dump>
+</configuration>

@@ -11,10 +11,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
+import org.bson.Document;
 
 
 public class Main {
-	private final static String VERSION = "0.0.1";
+	private final static String VERSION = "0.0.2";
+    private final static String DEFAULT_CONFIG_FILE_NAME = "config.xml";
 	
 	private final static Logger Logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
@@ -35,10 +37,23 @@ public class Main {
 		options.addOption("i", "index", true, "index dump file");
 		options.addOption("t", "test", true, "test dump file");
 		options.addOption("S", "score", true, "dump scores");
-		
+        options.addOption("c", "config", true, "config file");
+
 		try {
 			// parse the command line arguments
 			CommandLine line = parser.parse(options, args);
+            //String config = "config.xml";
+//            MyConfig config = null;
+
+//            if (line.hasOption("config")) {
+//                String configFilePath = line.getOptionValue("config");
+//                config = new MyConfig();
+//                System.out.println(configFilePath);
+//            } else {
+//                config = new MyConfig();
+//                System.out.println("No config file specified");
+//                config.loadConfigFile(DEFAULT_CONFIG_FILE_NAME);
+//            }
 
 			if (line.hasOption("help")) {
 				// automatically generate the help statement
@@ -67,7 +82,7 @@ public class Main {
 			} else if (line.hasOption("score")) {
 				ScoreFileReader reader = new ScoreFileReader();
 				reader.read();
-			} else {
+            } else {
 				System.out.println("NO OPTION MACTHED");
 			}
 			
@@ -101,7 +116,7 @@ public class Main {
 		if (file.exists() && file.isDirectory()) {
 			Logger.debug("Diectory exists");
 			MySearcher searcher = new MySearcher(pathStr);
-			searcher.search(words);
+			searcher.getResultsSlice(words, 0, 100);
 		} else {
 			Logger.error("Check " + pathStr + ".");
 		}
@@ -127,7 +142,9 @@ public class Main {
 		MyAnalyzer analyzer = new MyAnalyzer();
 		try {
 			DumpFileIndexer indexer = new DumpFileIndexer(targetPathStr, analyzer);
-			indexer.indexWithScores(dumpFilePathStr);
+            MongoDBJConnector connector = new MongoDBJConnector();
+            connector.connectDataBase("test");
+			indexer.indexWithScores(dumpFilePathStr, connector);
 			indexer.closeIndex();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -136,7 +153,22 @@ public class Main {
 	}
 	
 	private static void doTest(String pathStr) throws IOException {
-		Logger.info("Test file: " + pathStr);
+		//Logger.info("Test file: " + pathStr);
+        MyConfig myConfig = new MyConfig();
+		myConfig.loadDefault();
+        System.out.println(myConfig.getDefaultConfigFilename());
+//		MongoDBJConnector connector = new MongoDBJConnector("localhost", 27017);
+//		connector.testConnection();
+//		connector.test();
+
+//		connector.connectDataBase("test");
+//
+//		Document document = connector.getUrlDocByUrl("http://www.rutgers.edu/");
+//		System.out.println(document.toString());
+//		System.out.println("Domain: " + connector.getDomainInfoByUrl("rutgers.edu"));
+//		System.out.println("Host: " + connector.getHostInfoByUrl("125.stanford.edu"));
+
+		//connector.connect();
 		//process(dumpFilePathStr);
 //		DumpFileIndexer indexer = new DumpFileIndexer("abced");
 //		indexer.index(dumpFilePathStr);
