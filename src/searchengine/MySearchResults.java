@@ -12,18 +12,23 @@ public class MySearchResults {
     private int mNumOfHits;
     private int mStart;
     private long mEclipsedTime;
+    private long mSearchingTime;
+    private long mRankingTime;
 
     private MySearchResults() {
         mRecords = new ArrayList<SearchResultRecord>();
         mNumOfHits = 0;
         mStart = 0;
+        mSearchingTime = 0;
+        mRankingTime = 0;
     }
 
-    static MySearchResults create (int start, int numOfTotalHits, long eclipsedTime) {
+    static MySearchResults create (int start, int numOfTotalHits) {
         MySearchResults results = new MySearchResults();
         results.mStart = start;
         results.mNumOfHits = numOfTotalHits;
-        results.mEclipsedTime = eclipsedTime;
+//        results.mEclipsedTime = eclipsedTime;
+//        results.mSearchingTime = searchingTime;
         return results;
     }
 
@@ -39,6 +44,18 @@ public class MySearchResults {
         mRecords = null;
         mRecords = new ArrayList<>(records);
     }
+
+    public void setSearchingTime(long searchingTime) {
+        mSearchingTime = searchingTime;
+    }
+    public void setRankingTime(long rankingTime) {
+        mRankingTime = rankingTime;
+    }
+    public void setTotalEclipsedTime (long totalTime) {
+        mEclipsedTime = totalTime;
+    }
+
+
 
     public int getNumOfRecords () {
         return mRecords.size();
