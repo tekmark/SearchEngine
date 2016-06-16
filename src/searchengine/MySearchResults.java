@@ -36,6 +36,7 @@ public class MySearchResults {
 //        return "";
 //    }
 
+
     public void add(SearchResultRecord record) {
         mRecords.add(record);
     }
@@ -71,6 +72,22 @@ public class MySearchResults {
 
     public long getEclipsedTimeMilliSec() {
         return mEclipsedTime / 1000000;
+    }
+
+    public long getSearchingTime() {
+        return mSearchingTime;
+    }
+
+    public long getSearchingTimeMilliSec() {
+        return mSearchingTime / 1000000;
+    }
+
+    public long getRankingTime() {
+        return mRankingTime;
+    }
+
+    public long getRankingTimeMilliSec() {
+        return mRankingTime / 1000000;
     }
 
     public int getStart() {
